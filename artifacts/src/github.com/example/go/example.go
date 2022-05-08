@@ -16,6 +16,7 @@ import (
 // SmartContract Define the Smart Contract structure
 type SmartContract struct {
 }
+/*
 
 // Product :  Define the Product structure
 type Product struct {
@@ -45,6 +46,28 @@ type Sensor struct {
 	Humidity string `json:"humidity"`
 	Pressure  string `json:"pressure"`
 	TimeStamp  string `json:"timestamp"`
+}
+*/
+
+type Record struct {
+	UserId string `json:"userId"`
+	CreatedDate string `json:"createdDate"`
+	Survey Survey `json:"survey"`
+}
+type Survey struct {
+	SurveyId string `json:"surveyId"`
+	SurveyDescription string `json:"surveyDescription"`
+	Question []Question `json:"questions"`
+}
+type Question struct {
+	QuestionId string `json:"questionId"`
+	QuestionDescription string `json:"questionDescription"`
+	Answer Answer `json:"answer"`
+}
+type Answer struct {
+	AnswerId string `json:"answerId"`
+	AnswerDescription string `json:"answerDescription"`
+
 }
 
 // Init ;  Method for initializing smart contract
@@ -80,6 +103,8 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 		return s.changeSensorData(APIstub, args)
 	case "querySensorData":
 		return s.querySensorData(APIstub, args)
+	case "createData":
+		return s.createData(APIstub,args)
 	default:
 		return shim.Error("Invalid Smart Contract function name.")
 	}
@@ -383,6 +408,76 @@ func (t *SmartContract) getHistoryForAsset(stub shim.ChaincodeStubInterface, arg
 	fmt.Printf("- getHistoryForAsset returning:\n%s\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
+}
+
+///////////////////////////////////
+
+func (s *SmartContract) createData(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+/*
+if len(args) != 4 {
+	return shim.Error("Incorrect number of arguments. Expecting 4")
+}
+*/
+/*
+	args[1]=userId;
+	args[2]=surveyId;
+	args[3]=surveyDesc;
+	args[4]=questions[];
+	args[4][i].id=question.id//bu kısımdan emin değilim
+	args[4][i].desc=question.desc//bu kısımdan emin değilim
+	args[4][i].answer.id=answer.id//bu kısımdan emin değilim
+	args[4][i].answer.desc=answer.desc//bu kısımdan emin değilim
+
+*/
+
+dt:= time.Now()
+
+var record=Record{UserId:args[1]}
+record.CreatedDate=dt.Format("01-02-2006 15:04:05")
+
+var survey=Survey{SurveyId:args[2],SurveyDescription:args[3]}
+var questions []Question
+
+for i, s := range args[4] {
+	var answer=Answer{AnswerDescription:args[4][i].answerDescription, AnswerId:args[4][i].answerId}
+	var question=Question{QuestionId:args[4][i].questionId,QuestionDescription:args[4][i].questionId,Answer:answer}
+	questions=questions.append(questions,question)
+}
+survey.Question=question
+record.Survey=survey
+
+productAsBytes, _ := json.Marshal(product)
+APIstub.PutState(args[0], productAsBytes)
+
+return shim.Success(productAsBytes)
+
+/*
+var product = Product{ProductName: args[1], ProductClass: args[2], Producer: args[3]}
+
+product.Status= "Uretildi"
+product.ProductionDate=dt.Format("01-02-2006 15:04:05")
+product.ProducerCheckoutDate="n/a"
+product.Transporter="n/a" 
+product.TransporterEntryDate="n/a"
+product.TransporterCheckoutDate="n/a"
+product.Warehouse="n/a"
+product.WarehouseEntryDate="n/a"
+product.WarehouseCheckoutDate= "n/a"
+
+productAsBytes, _ := json.Marshal(product)
+APIstub.PutState(args[0], productAsBytes)
+
+indexName := "status~key"
+colorNameIndexKey, err := APIstub.CreateCompositeKey(indexName, []string{product.Status, args[0]})
+if err != nil {
+	return shim.Error(err.Error())
+}
+value := []byte{0x00}
+APIstub.PutState(colorNameIndexKey, value)
+
+return shim.Success(productAsBytes)
+*/
 }
 
 func main() {
