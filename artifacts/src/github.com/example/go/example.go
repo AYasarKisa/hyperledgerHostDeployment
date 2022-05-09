@@ -16,7 +16,7 @@ import (
 // SmartContract Define the Smart Contract structure
 type SmartContract struct {
 }
-/*
+
 
 // Product :  Define the Product structure
 type Product struct {
@@ -47,7 +47,7 @@ type Sensor struct {
 	Pressure  string `json:"pressure"`
 	TimeStamp  string `json:"timestamp"`
 }
-*/
+
 
 type Record struct {
 	UserId string `json:"userId"`
