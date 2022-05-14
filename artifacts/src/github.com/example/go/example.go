@@ -52,10 +52,14 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 	logger.Infof("Args length is : %d", len(args))
 
 	switch function {
-	case "queryAllProduct":
-		return s.queryAllProduct(APIstub)
+	case "queryAllData":
+		return s.queryAllData(APIstub)
 	case "createData":
 		return s.createData(APIstub,args)
+	case "queryData":
+		return s.queryData(APIstub,args)
+	case "queryDataBySurveyId":
+		return s.queryDataBySurveyId(APIstub,args)
 	default:
 		return shim.Error("Invalid Smart Contract function name.")
 	}
@@ -78,15 +82,23 @@ record.CreatedDate=dt.Format("01-02-2006 15:04:05")
 recordAsBytes, _ := json.Marshal(record)
 APIstub.PutState(args[0], recordAsBytes)
 
+
+indexName := "status~key"
+nameIndexKey, err := APIstub.CreateCompositeKey(indexName, []string{record.survey.surveyId, args[0]})
+if err != nil {
+	return shim.Error(err.Error())
+}
+value := []byte{0x00}
+APIstub.PutState(nameIndexKey, value)
 return shim.Success(recordAsBytes)
 
 }
 
 
-func (s *SmartContract) queryAllProduct(APIstub shim.ChaincodeStubInterface) sc.Response {
+func (s *SmartContract) queryAllData(APIstub shim.ChaincodeStubInterface) sc.Response {
 
-	startKey := "DATA0"
-	endKey := "DATA10000"
+	startKey := "DATA1"
+	endKey := "DATA999"
 
 	resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
 	if err != nil {
@@ -124,6 +136,76 @@ func (s *SmartContract) queryAllProduct(APIstub shim.ChaincodeStubInterface) sc.
 	fmt.Printf("- queryAllProduct:\n%s\n", buffer.String())
 
 	return shim.Success(buffer.Bytes())
+}
+
+
+func (s *SmartContract) queryData(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	dataAsBytes, _ := APIstub.GetState(args[0])
+
+	record := Record(Record)
+	_ = json.Unmarshal(dataAsBytes, record)
+
+	return shim.Success(dataAsBytes)
+}
+
+
+func (S *SmartContract) queryDataBySurveyId(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments")
+	}
+	surveyId := args[0]
+
+	surveyIdResultIterator, err := APIstub.GetStateByPartialCompositeKey("status~key", []string{surveyId})
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	defer surveyIdResultIterator.Close()
+
+	var i int
+	var id string
+
+	var records []byte
+	bArrayMemberAlreadyWritten := false
+
+	records = append([]byte("["))
+
+	for i = 0; surveyIdResultIterator.HasNext(); i++ {
+		responseRange, err := surveyIdResultIterator.Next()
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		objectType, compositeKeyParts, err := APIstub.SplitCompositeKey(responseRange.Key)
+		if err != nil {
+			return shim.Error(err.Error())
+		}
+
+		id = compositeKeyParts[1]
+		assetAsBytes, err := APIstub.GetState(id)
+
+		if bArrayMemberAlreadyWritten == true {
+			newBytes := append([]byte(","), assetAsBytes...)
+			records = append(records, newBytes...)
+
+		} else {
+			records = append(records, assetAsBytes...)
+		}
+
+		fmt.Printf("Found a asset for index : %s asset id : ", objectType, compositeKeyParts[0], compositeKeyParts[1])
+		bArrayMemberAlreadyWritten = true
+
+	}
+
+	records = append(records, []byte("]")...)
+
+	return shim.Success(records)
 }
 
 func main() {

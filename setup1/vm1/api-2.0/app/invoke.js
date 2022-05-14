@@ -6,7 +6,7 @@ const logger = log4js.getLogger('BasicNetwork');
 const util = require('util')
 const helper = require('./helper')
 var mqtt = require('mqtt');
-var client = mqtt.connect('mqtt://18.119.109.119:1234');
+var client = mqtt.connect('mqtt://3.89.129.25:1234');
 // const createTransactionEventHandler = require('./MyTransactionEventHandler.ts')
 
 var org_name='';
@@ -27,7 +27,8 @@ client.on('connect', () => {
 
 })
 client.on('message', (topic, message) => {
-
+    console.log("client.on message" +message);
+    console.log();
     var data = JSON.parse(message)
 
     org_name = data.orgname;
@@ -39,10 +40,18 @@ client.on('message', (topic, message) => {
     args1 = data.args[1];
     args2= data.args[2];
     args3 = data.args[3];
+    console.log("client.on message bitti");
+    console.log("fcn: " +fcn);
+    console.log("args: " +args);
+    console.log("args1: " +args1);
+    console.log();    console.log();
+    console.log();
+
+    
 
 })
 
-const invokeTransaction = async () => {
+const invokeTransaction = async (channelName, chaincodeName, username, org_name,fcn_,args_,args2_) => {
     try {
         logger.debug(util.format('\n============ invoke transaction on channel %s ============\n', channelName));
 
@@ -73,26 +82,14 @@ const invokeTransaction = async () => {
 
         let result
         let message;
-        if (fcn === "createProduct") {
-            result = await contract.submitTransaction(fcn, args, args1, args2, args3);
-            message = `Successfully added the product asset with key ${args}`
-
-        }else if (fcn === "changeProductStatus") {
-            result = await contract.submitTransaction(fcn, args, args1);
-            message = `Successfully changed product status with key ${args}`
-
-        }else if (fcn === "createSensorData") {
-            args4=username
-            result = await contract.submitTransaction(fcn, args, args1, args2, args3, args4);
-            message = `Successfully added the sensor asset with key ${args}`
-
-        }else if (fcn === "changeSensorData") {
-            result = await contract.submitTransaction(fcn, args, args1, args2, args3);
-            message = `Successfully updated sensor values with key ${args}`
-
+        console.log("invokeTransaction     fcn: "+fcn_+"  args: "+args_+"  args1"+args2_ );
+        if (fcn_=== "createData") {
+            console.log("invoke.js createData");
+            result = await contract.evaluateTransaction(fcn_, args_,args2_);
+            message = `Successfully createData key: ${args_}`
         }
         else {
-            return `Invocation require either createProduct or changeProductStatus as function but got ${fcn}`
+            return `Invocation require either as function but got ${fcn}`
         }
         await gateway.disconnect();
 
@@ -122,5 +119,6 @@ const invokeTransaction = async () => {
     }
 
 }
+
 
 exports.invokeTransaction = invokeTransaction;

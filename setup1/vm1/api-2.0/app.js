@@ -12,7 +12,7 @@ const bearerToken = require('express-bearer-token');
 const cors = require('cors');
 const constants = require('./config/constants.json')
 const mqtt = require('mqtt');
-const client = mqtt.connect('mqtt://18.119.109.119:1234');
+const client = mqtt.connect('mqtt://3.89.129.25:1234');
 
 const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port;
@@ -224,15 +224,15 @@ app.post('/channels/:channelName/chaincodes/:chaincodeName', async function (req
             res.json(getErrorMessage('\'args\''));
             return;
         }
-
-        if (fcn === "createProduct" || fcn =="changeProductStatus") {
-            var product ='{ "fcn":"'+fcn+'", "chaincodeName":"'+chaincodeName+'", "channelName":"'+channelName+'", "args": ["'+args[0]+'", "'+args[1]+'", "'+args[2]+'", "'+args[3]+'"],"orgname":"'+req.orgname+'","username":"'+req.username+'"}';
-            var mesaj= JSON.parse(product)
-            client.publish(topic, JSON.stringify(mesaj))
-        } else if (fcn === "createSensorData" || fcn =="changeSensorData") {
-            var sensor ='{ "fcn":"'+fcn+'", "chaincodeName":"'+chaincodeName+'", "channelName":"'+channelName+'", "args": ["'+args[0]+'", "'+args[1]+'", "'+args[2]+'", "'+args[3]+'"],"orgname":"'+req.orgname+'","username":"'+req.username+'"}';
-            var mesaj= JSON.parse(sensor)
-            client.publish(topic, JSON.stringify(mesaj))
+        let surveyData;
+        if (fcn === "createData") {
+            let survey ='{ "fcn":"'+fcn+'", "chaincodeName":"'+chaincodeName+'", "channelName":"'+channelName+'", "args": ["'+args[0]+'", "'+JSON.stringify(args[1])+'"],"orgname":"'+req.orgname+'","username":"'+req.username+'"}';
+            survey=survey.replace("\"\"","\"");
+            survey=survey.replace("\"\"","\"");
+            surveyData=survey;
+            console.log("app.js createData data:"+survey);
+            //var mesaj= JSON.parse(survey)
+            //client.publish(topic, survey)
         }
 
 
@@ -240,9 +240,19 @@ app.post('/channels/:channelName/chaincodes/:chaincodeName', async function (req
         /*const str = CircularJSON.stringify(req);
         var mesaj= JSON.parse(str) //JSON.stringify(mesaj)*/
 
-//channelName, chaincodeName, fcn, args, req.username, req.orgname, transient
-        let message = await invoke.invokeTransaction();
+    //channelName, chaincodeName, fcn, args, req.username, req.orgname, transient
+    var data_ = JSON.parse(surveyData)
+    var org_name_=data_.orgname;
+    var username_=data_.username;
+    var chaincodeName_ = data_.chaincodeName;
+    var channelName_ = data_.channelName;
+    var fcn_ = data_.fcn;
+    var args_ = data_.args[0];
+    var args1_=JSON.stringify(args[1]);    
+
+    let message = await invoke.invokeTransaction(channelName_,chaincodeName_,username_,org_name_,fcn_,args_,args1_);
         console.log(`message result is : ${message}`)
+        
 
         const response_payload = {
             result: message,
