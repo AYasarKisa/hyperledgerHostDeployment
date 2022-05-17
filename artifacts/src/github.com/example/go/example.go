@@ -68,15 +68,50 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 
 func (s *SmartContract) createData(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-var record Record
 
-err := json.Unmarshal([]byte(args[1]), &record)
-if err != nil {
-	 return shim.Success(nil)
-}
-
+var breakPoint int
+breakPoint=len(args)/4
 dt := time.Now()
+var record Record
+var survey Survey;
+var questions []Question;
+
+record.UserId=args[0]
+//record.createdDate=args[1]
 record.CreatedDate=dt.Format("01-02-2006 15:04:05")
+survey.SurveyId=args[2]
+survey.SurveyDescription=args[3]
+
+
+var question Question
+var answer Answer
+
+for index, element := range args {
+	if index>=breakPoint*4{
+		break
+	}
+
+	if index>3{
+		if index%4==0{
+			question.QuestionId=element
+		} 
+		if index%4==1{
+			question.QuestionDescription=element
+		} 
+		if index%4==2 {
+			answer.AnswerId=element
+		} 
+		if index%4==3 {
+			answer.AnswerDescription=element
+			question.Answer=answer
+			questions=append(questions,question)
+		}
+	}
+
+}
+survey.Question=questions
+record.Survey=survey
+
 
 
 recordAsBytes, _ := json.Marshal(record)
@@ -84,7 +119,7 @@ APIstub.PutState(args[0], recordAsBytes)
 
 
 indexName := "status~key"
-nameIndexKey, err := APIstub.CreateCompositeKey(indexName, []string{record.survey.surveyId, args[0]})
+nameIndexKey, err := APIstub.CreateCompositeKey(indexName, []string{record.Survey.SurveyId, args[0]})
 if err != nil {
 	return shim.Error(err.Error())
 }
@@ -147,7 +182,7 @@ func (s *SmartContract) queryData(APIstub shim.ChaincodeStubInterface, args []st
 
 	dataAsBytes, _ := APIstub.GetState(args[0])
 
-	record := Record(Record)
+	var record Record
 	_ = json.Unmarshal(dataAsBytes, record)
 
 	return shim.Success(dataAsBytes)
