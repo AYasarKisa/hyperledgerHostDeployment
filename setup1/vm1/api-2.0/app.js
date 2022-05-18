@@ -226,9 +226,7 @@ app.post('/channels/:channelName/chaincodes/:chaincodeName', async function (req
         }
         let surveyData;
         if (fcn === "createData") {
-            let survey ='{ "fcn":"'+fcn+'", "chaincodeName":"'+chaincodeName+'", "channelName":"'+channelName+'", "args": ["'+args[0]+'", "'+JSON.stringify(args[1])+'"],"orgname":"'+req.orgname+'","username":"'+req.username+'"}';
-            survey=survey.replace("\"\"","\"");
-            survey=survey.replace("\"\"","\"");
+            let survey ='{ "fcn":"'+fcn+'", "chaincodeName":"'+chaincodeName+'", "channelName":"'+channelName+'", "args": ["'+args[0]+'", "'+args[1]+'"],"orgname":"'+req.orgname+'","username":"'+req.username+'"}';
             surveyData=survey;
             console.log("app.js createData data:"+survey);
             //var mesaj= JSON.parse(survey)
@@ -247,10 +245,12 @@ app.post('/channels/:channelName/chaincodes/:chaincodeName', async function (req
     var chaincodeName_ = data_.chaincodeName;
     var channelName_ = data_.channelName;
     var fcn_ = data_.fcn;
-    var args_ = data_.args[0];
-    var args1_=JSON.stringify(args[1]);    
+    let args_ = args;
+    args_.splice(0,1);
+    //var args1_=args[1];  
+    console.log("args: ",args);  
 
-    let message = await invoke.invokeTransaction(channelName_,chaincodeName_,username_,org_name_,fcn_,args_,args1_);
+    let message = await invoke.invokeTransaction(channelName_,chaincodeName_,username_,org_name_,fcn_,args_);
         console.log(`message result is : ${message}`)
         
 

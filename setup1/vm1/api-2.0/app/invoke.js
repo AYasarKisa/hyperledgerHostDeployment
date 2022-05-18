@@ -51,7 +51,7 @@ client.on('message', (topic, message) => {
 
 })
 
-const invokeTransaction = async (channelName, chaincodeName, username, org_name,fcn_,args_,args2_) => {
+const invokeTransaction = async (channelName, chaincodeName, username, org_name,fcn_,args_) => {
     try {
         logger.debug(util.format('\n============ invoke transaction on channel %s ============\n', channelName));
 
@@ -82,11 +82,14 @@ const invokeTransaction = async (channelName, chaincodeName, username, org_name,
 
         let result
         let message;
-        console.log("invokeTransaction     fcn: "+fcn_+"  args: "+args_+"  args1"+args2_ );
+        console.log("invokeTransaction     fcn: "+fcn_);
+        console.log("args  ",args_);
         if (fcn_=== "createData") {
             console.log("invoke.js createData");
-            result = await contract.evaluateTransaction(fcn_, args_,args2_);
-            message = `Successfully createData key: ${args_}`
+            result = await contract.submitTransaction(fcn_,args_);
+            console.log("result: "+result);
+            message = `Successfully createData key: ${args_[0]}`
+            message=result;
         }
         else {
             return `Invocation require either as function but got ${fcn}`
@@ -96,17 +99,6 @@ const invokeTransaction = async (channelName, chaincodeName, username, org_name,
         let response = {
             message: message
         }
-
-        /*org_name='';
-        username='';
-        chaincodeName='';
-        channelName='';
-        fcn='';
-        args='';
-        args1='';
-        args2='';
-        args3='';
-        args4='';*/
 
         return response;
 

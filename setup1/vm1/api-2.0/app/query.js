@@ -45,7 +45,7 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name) 
         const contract = network.getContract(chaincodeName);
         let result;
 
-        if (fcn =="queryAllData") {
+        if (fcn =="queryAllData" || fcn =="queryData" || fcn =="queryDataBySurveyId" ) {
             console.log(`arguments type is------------------------------------------------------------- ${typeof args}`)
             console.log(`length of args is------------------------------------------------------------ ${args.length}`)
             result = await contract.evaluateTransaction(fcn, args[0]);

@@ -70,18 +70,17 @@ func (s *SmartContract) createData(APIstub shim.ChaincodeStubInterface, args []s
 
 
 var breakPoint int
-breakPoint=len(args)/4
+breakPoint=len(args)/4+1
 dt := time.Now()
 var record Record
 var survey Survey;
 var questions []Question;
 
-record.UserId=args[0]
-//record.createdDate=args[1]
+record.UserId=args[1]
+record.createdDate=args[2]
 record.CreatedDate=dt.Format("01-02-2006 15:04:05")
-survey.SurveyId=args[2]
-survey.SurveyDescription=args[3]
-
+survey.SurveyId=args[3]
+survey.SurveyDescription=args[4]
 
 var question Question
 var answer Answer
@@ -91,17 +90,17 @@ for index, element := range args {
 		break
 	}
 
-	if index>3{
-		if index%4==0{
+	if index>4{
+		if index%4==1{
 			question.QuestionId=element
 		} 
-		if index%4==1{
+		if index%4==2{
 			question.QuestionDescription=element
 		} 
-		if index%4==2 {
+		if index%4==3 {
 			answer.AnswerId=element
 		} 
-		if index%4==3 {
+		if index%4==0 {
 			answer.AnswerDescription=element
 			question.Answer=answer
 			questions=append(questions,question)
