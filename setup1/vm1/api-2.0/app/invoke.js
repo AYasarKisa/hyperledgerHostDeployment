@@ -6,7 +6,7 @@ const logger = log4js.getLogger('BasicNetwork');
 const util = require('util')
 const helper = require('./helper')
 var mqtt = require('mqtt');
-var client = mqtt.connect('mqtt://3.89.129.25:1234');
+var client = mqtt.connect('mqtt://34.229.12.145:1234');
 // const createTransactionEventHandler = require('./MyTransactionEventHandler.ts')
 
 var org_name='';
@@ -89,7 +89,6 @@ const invokeTransaction = async (channelName, chaincodeName, username, org_name,
             result = await contract.submitTransaction(fcn_,args_);
             console.log("result: "+result);
             message = `Successfully createData key: ${args_[0]}`
-            message=result;
         }
         else {
             return `Invocation require either as function but got ${fcn}`

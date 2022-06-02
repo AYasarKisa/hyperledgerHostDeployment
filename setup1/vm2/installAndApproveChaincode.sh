@@ -28,7 +28,7 @@ presetup() {
     popd
     echo Finished vendoring Go dependencies
 }
-# presetup
+ presetup
 
 CHANNEL_NAME="mychannel"
 CC_RUNTIME_LANGUAGE="golang"
@@ -44,7 +44,7 @@ packageChaincode() {
         --label ${CC_NAME}_${VERSION}
     echo "===================== Chaincode is packaged on peer0.org2 ===================== "
 }
-# packageChaincode
+ packageChaincode
 
 installChaincode() {
     setGlobalsForPeer0Org2
@@ -53,7 +53,7 @@ installChaincode() {
 
 }
 
-# installChaincode
+ installChaincode
 
 queryInstalled() {
     setGlobalsForPeer0Org2
@@ -65,13 +65,13 @@ queryInstalled() {
     echo "===================== Query installed successful on peer0.org2 on channel ===================== "
 }
 
-# queryInstalled
+ queryInstalled
 
 approveForMyOrg2() {
     setGlobalsForPeer0Org2
 
     # Replace localhost with your orderer's vm IP address
-    peer lifecycle chaincode approveformyorg -o 3.137.192.227:7050 \
+    peer lifecycle chaincode approveformyorg -o 34.229.12.145:7050 \
         --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED \
         --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name ${CC_NAME} \
         --version ${VERSION} --init-required --package-id ${PACKAGE_ID} \
@@ -79,8 +79,8 @@ approveForMyOrg2() {
 
     echo "===================== chaincode approved from org 2 ===================== "
 }
-# queryInstalled
-# approveForMyOrg2
+ queryInstalled
+ approveForMyOrg2
 
 checkCommitReadyness() {
 
@@ -91,4 +91,4 @@ checkCommitReadyness() {
     echo "===================== checking commit readyness from org 1 ===================== "
 }
 
-# checkCommitReadyness
+ checkCommitReadyness
