@@ -6,7 +6,7 @@ const logger = log4js.getLogger('BasicNetwork');
 const util = require('util')
 const helper = require('./helper')
 var mqtt = require('mqtt');
-var client = mqtt.connect('mqtt://34.229.12.145:1234');
+var client = mqtt.connect('mqtt://34.230.75.198:1234');
 // const createTransactionEventHandler = require('./MyTransactionEventHandler.ts')
 
 var org_name='';

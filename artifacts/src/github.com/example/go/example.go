@@ -77,7 +77,7 @@ var survey Survey;
 var questions []Question;
 
 record.UserId=args[1]
-record.createdDate=args[2]
+record.CreatedDate=args[2]
 record.CreatedDate=dt.Format("01-02-2006 15:04:05")
 survey.SurveyId=args[3]
 survey.SurveyDescription=args[4]

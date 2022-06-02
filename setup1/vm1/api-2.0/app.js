@@ -12,7 +12,7 @@ const bearerToken = require('express-bearer-token');
 const cors = require('cors');
 const constants = require('./config/constants.json')
 const mqtt = require('mqtt');
-const client = mqtt.connect('mqtt://3.89.129.25:1234');
+const client = mqtt.connect('mqtt://34.230.75.198:1234');
 
 const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port;
